@@ -10,6 +10,7 @@ import Menu from "./components/Menu";
 import Registro from "./components/Registro";
 import Privada from "./components/Privada";
 import {auth} from "./firebase"
+import Cuentas from "./components/Cuentas";
 
 
 function App() {
@@ -45,7 +46,8 @@ function App() {
           </Route>
 
           <Route path="/privado">
-            <Privada/>
+            {/* <Privada/> */}
+            <Cuentas/>
           </Route>
 
           <Route path="/">
