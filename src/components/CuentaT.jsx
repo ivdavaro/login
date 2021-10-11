@@ -1,61 +1,102 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase"
 
-const Categorias = () => {
+const CuentaT = () => {
 
-    const COLLECTION_DB = "categorias"
+    const COLLECTION_DB = "cuentaT"
+    const COLLECTION_DB_CATEGORIAS = "categorias"
+    const COLLECTION_DB_CUENTAS = "cuentas"
+
+    const [cuentaT, setCuentaT] = useState([]);
     const [categorias, setCategorias] = useState([]);
+    const [cuentas, setCuentas] = useState([]);
 
-    const [nombre, setNombre] = useState("");
+    const [cuenta, setCuenta] = useState("");
+    const [fecha, setFecha] = useState("");
     const [descripcion, setDescripcion] = useState("");
-    const [tipoCategoria, setTipoCategoria] = useState("");
+    const [debe, setDebe] = useState("");
+    const [haber, setHaber] = useState("");
+    const [valor, setValor] = useState("");
+    const [diferencia, setDiferencia] = useState("");
+    const [saldo, setSaldo] = useState("");
 
-    const [errNombre, setErrNombre] = useState("");
+    const [errCuenta, setErrCuenta] = useState("");
+    const [errFecha, setErrFecha] = useState("");
     const [errDescripcion, setErrDescripcion] = useState("");
-    const [errTipoCategoria, setErrTipoCategoria] = useState("");
+    const [errDebe, setErrDebe] = useState("");
+    const [errHaber, setErrHaber] = useState("");
+    const [errValor, setErrValor] = useState("");
+    const [errDiferencia, setErrDiferencia] = useState("");
+    const [errSaldo, setErrSaldo] = useState("");
 
     const [modoEdicion, setModoEdicion] = useState(false);
     const [id, setId] = useState("");
 
     useEffect(() => {
-        const obtenerCategorias = async () => {
-            try {
-                const data = await db.collection(COLLECTION_DB).get();
-                const arrayCategorias = data.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setCategorias(arrayCategorias);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-
         obtenerCategorias();
+        obtenerCuentas();
     }, []);
+    const obtenerCategorias = async () => {
+        try {
+            const data = await db.collection(COLLECTION_DB_CATEGORIAS).get();
+            const arrayCategorias = data.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setCategorias(arrayCategorias);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
-    const agregarCuenta = async (e) => {
+    const obtenerCuentaT = async () => {
+        try {
+            const data = await db.collection(COLLECTION_DB).get();
+            const arrayCuentaT = data.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setCuentaT(arrayCuentaT);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const obtenerCuentas = async () => {
+        try {
+            const data = await db.collection(COLLECTION_DB_CUENTAS).get();
+            const arrayCuentas = data.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setCuentas(arrayCuentas);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const agregarRegistro = async (e) => {
         e.preventDefault();
 
-        if (!nombre.trim()) {
+        if (!cuenta.trim()) {
             setErrNombre("El campo nombre de la cuenta no puede estar vacio");
-        } else if (!descripcion.trim()) {
+        } else if (!fecha.trim()) {
             setErrDescripcion("El campo descripcion no puede estar vacio");
-        } else if (!tipoCategoria.trim() == '-1' ) {
+        } else if (!descripcion.trim() == '-1' ) {
             setErrTipoCategoria("Debe seleccionar el tipo de categoría");
         } else {
 
             try {
                 const ctas = {
-                    nombre: nombre,
-                    descripcion: descripcion,
-                    tipoCategoria: tipoCategoria
+                    nombre: cuenta,
+                    descripcion: fecha,
+                    tipoCategoria: descripcion
                 };
 
                 const datos = await db.collection(COLLECTION_DB).add(ctas);
 
-                setCategorias([
-                    ...categorias,
+                setCuentaT([
+                    ...cuentaT,
                     {
                         id: datos.id,
                         ...ctas,
@@ -65,52 +106,52 @@ const Categorias = () => {
                 console.log(error);
             }
 
-            setNombre("");
-            setDescripcion("");
-            setTipoCategoria('-1')
+            setCuenta("");
+            setFecha("");
+            setDescripcion('-1')
         }
     };
 
-    const eliminarCategorias = async (id) => {
+    const eliminarRegistro = async (id) => {
         try {
             await db.collection(COLLECTION_DB).doc(id).delete();
-            const filtroArray = categorias.filter((item) => item.id !== id);
-            setCategorias(filtroArray);
+            const filtroArray = cuentaT.filter((item) => item.id !== id);
+            setCuentaT(filtroArray);
         } catch (error) {
             console.log(error);
         }
     };
 
-    const editarCuenta = (item) => {
+    const editarRegistro = (item) => {
         setModoEdicion(true)
         setId(item.id)
-        setNombre(item.nombre)
-        setDescripcion(item.descripcion)
-        setTipoCategoria(item.tipoCategoria)
+        setCuenta(item.nombre)
+        setFecha(item.descripcion)
+        setDescripcion(item.tipoCategoria)
     };
 
-    const actualizarCategorias = async (e) => {
+    const actualizarRegistro = async (e) => {
         e.preventDefault();
         try {
             const cta = {
-                nombre: nombre,
-                descripcion: descripcion,
+                nombre: cuenta,
+                descripcion: fecha,
             };
 
             await db.collection(COLLECTION_DB).doc(id).update(cta);
 
-            const filtro = categorias.map((item) =>
+            const filtro = cuentaT.map((item) =>
                 item.id === id
-                    ? { id: item.id, nombre: nombre, descripcion: descripcion, tipoCategoria: tipoCategoria}
+                    ? { id: item.id, nombre: cuenta, descripcion: fecha, tipoCategoria: descripcion}
                     : item
             );
 
-            setCategorias(filtro);
+            setCuentaT(filtro);
 
             setModoEdicion(false);
-            setNombre("");
-            setDescripcion("");
-            setTipoCategoria('-1');
+            setCuenta("");
+            setFecha("");
+            setDescripcion('-1');
         } catch (error) {
             console.log(error);
         }
@@ -121,18 +162,27 @@ const Categorias = () => {
             <div className="row">
                 <div className="col-sm-4">
                     <h1>{!modoEdicion ? 'Agregar Categoría' : 'Modificar Categoría'}</h1>
-                    <form onSubmit={modoEdicion ? actualizarCategorias : agregarCuenta}>
+                    <form onSubmit={modoEdicion ? actualizarRegistro : agregarRegistro}>
                         <div className="form-group">
-                            <label>Nombre :</label>
-                            <input
-                                type="text"
-                                placeholder="Nombre de la categoría"
-                                className="form-control mb-2"
-                                onChange={(e) => setNombre(e.target.value)}
-                                value={nombre}
-                            />
-                            {errNombre ? (
-                                <small className="text-danger">{errNombre}</small>
+                            <label>Cuenta :</label>                            
+                            <select class="form-select form-select-sm" aria-label=".form-select-sm example" onChange={(e) => setCuenta(e.target.value)}>
+                            
+                            {
+                                cuentas.length === 0 ? 
+                                (<option selected>No hay cuentas</option>):
+                                (
+                                    cuentas.map(
+                                        (item) => (
+                                            <option value={item.id}>{item.nombre}</option>
+                                        )
+
+                                    )
+
+                                )
+                            }
+                            </select>
+                            {errCuenta ? (
+                                <small className="text-danger">{errCuenta}</small>
                             ) : null}
                         </div>
                         <div className="form-group">
@@ -141,8 +191,8 @@ const Categorias = () => {
                                 type="text"
                                 placeholder="Descripción"
                                 className="form-control mb-2"
-                                onChange={(e) => setDescripcion(e.target.value)}
-                                value={descripcion}
+                                onChange={(e) => setFecha(e.target.value)}
+                                value={fecha}
                             />
                             {errDescripcion ? (
                                 <small className="text-danger">{errDescripcion}</small>
@@ -150,7 +200,7 @@ const Categorias = () => {
                         </div>
                         <div className="form-group">
                             <label>Tipo Categoría:</label>                            
-                            <select class="form-control mb-2" aria-label=".form-select-sm example" onChange={(e) => setTipoCategoria(e.target.value)}>
+                            <select class="form-control mb-2" aria-label=".form-select-sm example" onChange={(e) => setDescripcion(e.target.value)}>
                                 <option selected value="-1">Seleccione...</option>
                                 <option value="INGRESO">Ingreso</option>
                                 <option value="SALIDA">Salida</option>
@@ -179,10 +229,10 @@ const Categorias = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {categorias.length === 0 ? (
+                                {cuentaT.length === 0 ? (
                                     <thead className="list-group-item">Sin categorias</thead>
                                 ) : (
-                                    categorias.map((item) => (
+                                    cuentaT.map((item) => (
                                         <tr
                                             className="animate__animated animate__bounceInDown"
                                             key={item.id}
@@ -195,14 +245,14 @@ const Categorias = () => {
                                                 <div align="right">
                                                     <button
                                                         className="btn btn-sm btn-success mx-2"
-                                                        onClick={() => editarCuenta(item)}
+                                                        onClick={() => editarRegistro(item)}
                                                     >
                                                         {" "}
                                                         <i className="fas fa-edit"></i>{" "}
                                                     </button>
                                                     <button
                                                         className="btn btn-sm btn-info"
-                                                        onClick={() => eliminarCategorias(item.id)}
+                                                        onClick={() => eliminarRegistro(item.id)}
                                                     >
                                                         {" "}
                                                         <i className="fa fa-remove"></i>{" "}
@@ -222,4 +272,4 @@ const Categorias = () => {
 
 }
 
-export default Categorias
+export default CuentaT
